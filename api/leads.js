@@ -4,9 +4,11 @@
 // without this route the archive is dashboard-only. Guarded by a shared secret
 // in LEADS_ADMIN_KEY; if that variable is unset the route refuses to run at all.
 //
-//   /api/leads?key=…                       newest 50, JSON index
+//   /api/leads?key=…                       newest 50, each with its details
 //   /api/leads?key=…&prefix=leads/2026/08  one month
+//   /api/leads?key=…&full=1                same, but every stored field
 //   /api/leads?key=…&format=csv            flattened export for a spreadsheet
+//   /api/leads?key=…&index=1               names only, no record bodies (cheap)
 //   /api/leads?key=…&pathname=leads/…json  one full record
 
 import { timingSafeEqual } from 'node:crypto';
@@ -17,7 +19,28 @@ const ADMIN_KEY = process.env.LEADS_ADMIN_KEY;
 const BLOB_ACCESS = process.env.BLOB_ACCESS === 'public' ? 'public' : 'private';
 
 const MAX_CSV_ROWS = 250;
-const CSV_FETCH_CONCURRENCY = 8;
+const FETCH_CONCURRENCY = 8;
+
+// The default listing reads each blob so the response is actually useful on its
+// own. Capped because every row is one Blob round-trip inside a 15s function.
+const MAX_HYDRATE_ROWS = 100;
+
+// What a listing row shows without `full=1` — enough to decide who to call back.
+const SUMMARY = (r) => ({
+  receivedAt: r.receivedAt,
+  name: r.lead?.full_name ?? null,
+  phone: r.lead?.phone ?? null,
+  email: r.lead?.email ?? null,
+  address: r.lead?.property_address ?? null,
+  service: r.lead?.service_needed ?? null,
+  propertySize: r.lead?.property_size ?? null,
+  message: r.lead?.message ?? null,
+  city: [r.source?.city, r.source?.region].filter(Boolean).join(', ') || null,
+  page: r.source?.page ?? null,
+  utmSource: r.utm?.utm_source ?? null,
+  suspectedBot: r.signals?.suspectedBot ?? null,
+  id: r.id,
+});
 const CSV_COLUMNS = [
   ['receivedAt', (r) => r.receivedAt],
   ['name', (r) => r.lead?.full_name],
@@ -60,16 +83,56 @@ export default async function handler(req, res) {
 
   if (searchParams.get('format') === 'csv') return csv(res, blobs.slice(0, MAX_CSV_ROWS));
 
+  // Opt back in to the cheap names-only listing.
+  if (isTrue(searchParams.get('index'))) {
+    return json(res, {
+      count: blobs.length,
+      hasMore: listing.hasMore,
+      cursor: listing.cursor ?? null,
+      leads: blobs.map((blob) => ({
+        pathname: blob.pathname,
+        uploadedAt: blob.uploadedAt,
+        size: blob.size,
+      })),
+    });
+  }
+
+  const page = blobs.slice(0, MAX_HYDRATE_ROWS);
+  const shape = isTrue(searchParams.get('full')) ? (r) => r : SUMMARY;
+  const hydrated = await hydrate(page);
+
   return json(res, {
-    count: blobs.length,
+    count: hydrated.length,
+    truncated: blobs.length > page.length ? blobs.length - page.length : 0,
     hasMore: listing.hasMore,
     cursor: listing.cursor ?? null,
-    leads: blobs.map((blob) => ({
-      pathname: blob.pathname,
-      uploadedAt: blob.uploadedAt,
-      size: blob.size,
-    })),
+    leads: hydrated.map(({ pathname, record }) => ({ pathname, ...shape(record) })),
   });
+}
+
+// Reads each blob body, concurrency-limited. Unreadable blobs are dropped rather
+// than failing the whole listing — one corrupt record shouldn't hide the rest.
+async function hydrate(blobs) {
+  const out = [];
+  for (let i = 0; i < blobs.length; i += FETCH_CONCURRENCY) {
+    const batch = await Promise.all(
+      blobs.slice(i, i + FETCH_CONCURRENCY).map(async (blob) => {
+        try {
+          const result = await get(blob.pathname, { access: BLOB_ACCESS });
+          if (!result || result.statusCode !== 200) return null;
+          return { pathname: blob.pathname, record: JSON.parse(await new Response(result.stream).text()) };
+        } catch {
+          return null;
+        }
+      })
+    );
+    out.push(...batch.filter(Boolean));
+  }
+  return out;
+}
+
+function isTrue(value) {
+  return value === '1' || value === 'true' || value === 'yes';
 }
 
 async function one(res, pathname) {
@@ -86,21 +149,7 @@ async function one(res, pathname) {
 }
 
 async function csv(res, blobs) {
-  const records = [];
-  for (let i = 0; i < blobs.length; i += CSV_FETCH_CONCURRENCY) {
-    const batch = await Promise.all(
-      blobs.slice(i, i + CSV_FETCH_CONCURRENCY).map(async (blob) => {
-        try {
-          const result = await get(blob.pathname, { access: BLOB_ACCESS });
-          if (!result || result.statusCode !== 200) return null;
-          return JSON.parse(await new Response(result.stream).text());
-        } catch {
-          return null;
-        }
-      })
-    );
-    records.push(...batch.filter(Boolean));
-  }
+  const records = (await hydrate(blobs)).map(({ record }) => record);
 
   const rows = [CSV_COLUMNS.map(([header]) => header).join(',')];
   for (const record of records) {
