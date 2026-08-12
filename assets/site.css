@@ -1,0 +1,80 @@
+/* M310 Land Works — brand styles (supplements Tailwind CDN) */
+:root{
+  --m310-orange:#EA5B0C;      /* AA-safe orange for text-on-white */
+  --m310-orange-bright:#F26B1F; /* brand orange for surfaces */
+  --m310-orange-dark:#C74A08; /* deep orange for hover / small text on white */
+  --m310-black:#141414;
+  --m310-charcoal:#232323;
+  --m310-clay:#9E4A2B;        /* Georgia red-clay accent */
+  --m310-offwhite:#F7F4F0;
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','system-ui',sans-serif;
+  color:var(--m310-black);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+.font-display{font-family:'Anton','Oswald','Arial Narrow',sans-serif;letter-spacing:.01em}
+.font-cond{font-family:'Oswald','Arial Narrow',sans-serif}
+
+/* Italic stencil wordmark treatment */
+.wordmark{font-family:'Anton',sans-serif;font-style:normal;transform:skewX(-8deg);display:inline-block;line-height:.9}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:'Oswald',sans-serif;font-weight:600;
+  letter-spacing:.04em;text-transform:uppercase;border-radius:.4rem;transition:transform .12s ease,background .15s ease,box-shadow .15s ease;line-height:1}
+.btn:active{transform:translateY(1px)}
+.btn-orange{background:var(--m310-orange-bright);color:#fff;box-shadow:0 6px 18px -6px rgba(234,91,12,.6)}
+.btn-orange:hover{background:var(--m310-orange-dark)}
+.btn-outline{background:transparent;color:#fff;border:2px solid #fff}
+.btn-outline:hover{background:#fff;color:var(--m310-black)}
+.btn-dark{background:var(--m310-black);color:#fff}
+.btn-dark:hover{background:#000}
+
+/* Focus visibility (accessibility) */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid var(--m310-orange-bright);outline-offset:2px;border-radius:2px}
+
+/* Diagonal orange accent bar (matches slick tags) */
+.accent-tag{background:var(--m310-orange-bright);color:#fff;font-family:'Oswald',sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.12em;padding:.25rem .75rem;display:inline-block;transform:skewX(-10deg)}
+.accent-tag span{display:inline-block;transform:skewX(10deg)}
+
+/* Section heading underline */
+.rule-orange{width:64px;height:5px;background:var(--m310-orange-bright);border-radius:2px}
+
+/* Hero overlay gradient for legibility */
+.hero-overlay{background:linear-gradient(180deg,rgba(15,15,15,.62) 0%,rgba(15,15,15,.35) 45%,rgba(15,15,15,.72) 100%)}
+
+/* Service card hover */
+.svc-card{transition:transform .18s ease,box-shadow .18s ease}
+.svc-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -18px rgba(0,0,0,.45)}
+.svc-card:hover .svc-img{transform:scale(1.05)}
+.svc-img{transition:transform .4s ease}
+
+/* Sticky mobile CTA */
+#mobileCta{padding-bottom:env(safe-area-inset-bottom)}
+@media(min-width:768px){#mobileCta{display:none}}
+/* Reserve space so bar never covers footer content on mobile */
+@media(max-width:767px){body{padding-bottom:64px}}
+
+/* Pill tags */
+.pill{display:inline-block;background:#fff;border:1.5px solid var(--m310-black);color:var(--m310-black);
+  font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;
+  font-size:.8rem;padding:.4rem .9rem;border-radius:999px}
+
+/* clay texture band */
+.clay-band{background:var(--m310-clay)}
+
+/* Honeypot — off-canvas rather than display:none, which some bots detect */
+.hp-field{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+
+/* Inline submit error, spans the full form grid */
+.form-error{grid-column:1/-1;font-family:'Inter','system-ui',sans-serif;font-size:.85rem;line-height:1.6;
+  color:#8C2F24;background:#FBECEA;border:1px solid #E6BDB7;border-radius:.375rem;padding:.6rem .8rem}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}

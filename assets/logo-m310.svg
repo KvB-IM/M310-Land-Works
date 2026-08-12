@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 88" role="img" aria-label="M310 Land Works">
+  <style>
+    .m310 { font-family: 'Anton', 'Oswald', 'Arial Narrow', sans-serif; font-weight: 400; }
+    .sub  { font-family: 'Oswald', 'Arial Narrow', sans-serif; font-weight: 600; letter-spacing: .22em; }
+  </style>
+  <!-- Bold italic stencil-feel M310 wordmark -->
+  <g transform="skewX(-9)">
+    <text x="6" y="52" class="m310" font-size="58" fill="currentColor">M310</text>
+  </g>
+  <!-- underline rule -->
+  <rect x="8" y="60" width="228" height="5" fill="currentColor"/>
+  <text x="10" y="82" class="sub" font-size="16" fill="currentColor">LAND WORKS</text>
+</svg>
