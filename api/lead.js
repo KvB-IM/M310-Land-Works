@@ -165,9 +165,11 @@ async function sendNotification(record, serialized, pathname) {
   // Subject is built to be scannable in a phone notification: what it is, who
   // it is, and the two facts that decide whether you call back right now.
   // oneLine() because a pasted newline in a field would otherwise split the header.
+  // Brand leads the subject so Land Works leads are distinguishable at a glance
+  // from M310 Renovations leads, which land in the same inboxes.
   const detail = [lead.service_needed, lead.property_size].filter(Boolean).join(', ');
   const subject = oneLine(
-    `🌲 New Estimate Request — ${lead.full_name}${detail ? ` · ${detail}` : ''}`
+    `🌲 M310 Land Works — New Estimate Request: ${lead.full_name}${detail ? ` · ${detail}` : ''}`
   );
 
   // [key, label, value] — the key is kept so the HTML can skip the fields it
@@ -229,7 +231,7 @@ async function sendAutoReply(lead) {
       from: LEAD_FROM,
       to: [lead.email],
       reply_to: LEAD_TO.split(',')[0].trim(),
-      subject: 'We got your estimate request — M310 Land Works',
+      subject: 'M310 Land Works — We got your estimate request',
       text:
         `Hi ${firstName},\n\n` +
         'Thanks for reaching out to M310 Land Works. We have your request and someone from our ' +
@@ -323,11 +325,8 @@ function htmlBody(rows, context, record) {
     <table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:100%;max-width:640px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid ${BORDER}">
 
       <tr><td style="background:${INK};padding:22px 24px">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-          <td style="font:700 30px/1 ${SANS};color:#ffffff;letter-spacing:-.02em">M310<span style="color:${ORANGE}">.</span></td>
-          <td align="right" style="font:600 10px/1.5 ${SANS};color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.22em">Land<br>Works</td>
-        </tr></table>
-        <div style="height:3px;background:${ORANGE};margin:16px 0 14px;width:52px"></div>
+        <div style="font:700 27px/1.15 ${SANS};color:#ffffff;letter-spacing:-.01em">M310 Land Works<span style="color:${ORANGE}">.</span></div>
+        <div style="height:3px;background:${ORANGE};margin:14px 0 14px;width:52px"></div>
         <div style="font:700 21px/1.25 ${SANS};color:#ffffff;text-transform:uppercase;letter-spacing:.01em">New Estimate Request</div>
         <div style="font:14px/1.5 ${SANS};color:${ORANGE};margin-top:5px">${esc(
     formatStamp(record.receivedAt)
@@ -389,8 +388,8 @@ function autoReplyHtml(firstName) {
   <tr><td align="center">
     <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid ${BORDER}">
       <tr><td style="background:${INK};padding:22px 24px">
-        <div style="font:700 28px/1 ${SANS};color:#ffffff;letter-spacing:-.02em">M310<span style="color:${ORANGE}">.</span></div>
-        <div style="font:600 10px/1.5 ${SANS};color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.22em;margin-top:4px">Land Works</div>
+        <div style="font:700 25px/1.15 ${SANS};color:#ffffff;letter-spacing:-.01em">M310 Land Works<span style="color:${ORANGE}">.</span></div>
+        <div style="height:3px;background:${ORANGE};margin-top:12px;width:46px"></div>
       </td></tr>
       <tr><td style="padding:28px 24px 8px">
         <div style="font:700 22px/1.3 ${SANS};color:${INK}">Thanks, ${esc(firstName)} — we got it.</div>
