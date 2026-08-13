@@ -11,8 +11,14 @@
 import { put } from '@vercel/blob';
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
+const TURNSTILE_ENDPOINT = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
+// Cloudflare Turnstile. Only the secret lives here — the site key is public and
+// sits in the HTML. Leave this unset and the check is skipped entirely, so the
+// form keeps working before the variable is added in Vercel.
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY || '';
+const TURNSTILE_TIMEOUT_MS = 5000;
 const LEAD_TO =
   process.env.LEAD_TO_EMAIL ||
   'quote@m310landworks.com,yashwanth.challa@insurancemasters.biz,mario@insurancemasters.biz';
@@ -90,6 +96,20 @@ export default async function handler(req, res) {
     return json(res, { error: 'Please check the highlighted fields.', fields: errors }, 400);
   }
 
+  const clientIp = header(req, 'x-forwarded-for')?.split(',')[0].trim() || null;
+
+  // Turnstile is checked after field validation on purpose: a token is
+  // single-use, so burning it on an error the browser could have caught would
+  // force the visitor to solve a second challenge to fix a typo.
+  const turnstile = await verifyTurnstile(clean(body['cf-turnstile-response']), clientIp);
+  if (turnstile.status === 'missing' || turnstile.status === 'failed') {
+    return json(
+      res,
+      { error: 'Please complete the human-verification check and submit again.', fields: ['turnstile'] },
+      400
+    );
+  }
+
   const now = new Date();
   const elapsedMs = fillTime(body.form_render_ts, now);
   const utm = {};
@@ -106,7 +126,7 @@ export default async function handler(req, res) {
     source: {
       page: clean(body.page) || header(req, 'referer') || null,
       userAgent: header(req, 'user-agent') || null,
-      ip: header(req, 'x-forwarded-for')?.split(',')[0].trim() || null,
+      ip: clientIp,
       country: header(req, 'x-vercel-ip-country') || null,
       region: header(req, 'x-vercel-ip-country-region') || null,
       city: geo(header(req, 'x-vercel-ip-city')) || null,
@@ -115,6 +135,9 @@ export default async function handler(req, res) {
       fillTimeMs: elapsedMs,
       // Not a verdict, just a note in the record so you can spot a spam wave later.
       suspectedBot: elapsedMs !== null && elapsedMs < MIN_FILL_MS,
+      // 'passed' | 'disabled' | 'provider-unreachable' | 'provider-error'.
+      // The two provider states mean the lead was let through unverified.
+      turnstile: turnstile.status,
     },
   };
 
@@ -153,6 +176,58 @@ export default async function handler(req, res) {
     stored: stored.status === 'fulfilled',
     notified: mailed.status === 'fulfilled',
   });
+}
+
+/* -------------------------------------------------------------- turnstile
+ * Returns a status rather than a boolean, because "the visitor failed the
+ * challenge" and "Cloudflare did not answer us" need opposite handling:
+ *
+ *   missing / failed      -> reject. This is the bot case.
+ *   disabled              -> no secret configured; check skipped.
+ *   provider-unreachable  -> Cloudflare is down or slow. Let the lead through.
+ *   provider-error        -> Cloudflare answered but not usefully. Same.
+ *
+ * Failing open on provider trouble is deliberate. A Cloudflare outage would
+ * otherwise silently block every real estimate request on the site, which costs
+ * far more than the handful of bots the honeypot and fill-timer already catch.
+ * Whichever way it goes is recorded in the lead so a spam wave stays diagnosable.
+ */
+async function verifyTurnstile(token, ip) {
+  if (!TURNSTILE_SECRET) return { status: 'disabled' };
+  if (!token) return { status: 'missing' };
+
+  const form = new URLSearchParams({ secret: TURNSTILE_SECRET, response: token });
+  if (ip) form.set('remoteip', ip);
+
+  let response;
+  try {
+    response = await fetch(TURNSTILE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: form,
+      signal: AbortSignal.timeout(TURNSTILE_TIMEOUT_MS),
+    });
+  } catch (err) {
+    console.error('[lead] turnstile unreachable:', err);
+    return { status: 'provider-unreachable' };
+  }
+
+  if (!response.ok) {
+    console.error('[lead] turnstile HTTP', response.status);
+    return { status: 'provider-error' };
+  }
+
+  const data = await response.json().catch(() => null);
+  if (!data || typeof data.success !== 'boolean') {
+    console.error('[lead] turnstile sent an unreadable body');
+    return { status: 'provider-error' };
+  }
+
+  if (data.success) return { status: 'passed' };
+
+  const codes = data['error-codes'] || [];
+  console.warn('[lead] turnstile rejected a submission:', codes.join(', '));
+  return { status: 'failed', codes };
 }
 
 /* ------------------------------------------------------------------ email */

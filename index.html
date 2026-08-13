@@ -376,6 +376,11 @@
             <input id="h_consent" name="consent" type="checkbox" required class="mt-1 w-5 h-5" />
             <label for="h_consent" class="text-sm text-charcoal/80">I agree to be contacted by M310 Land Works about my request.</label>
           </div>
+          <!-- Cloudflare Turnstile. The site key is public by design; the secret
+               lives only in the TURNSTILE_SECRET_KEY env var on the server. -->
+          <div class="sm:col-span-2">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAEO_N7pgurd5lEdC" data-theme="light" data-size="flexible"></div>
+          </div>
           <p data-form-error role="alert" class="hidden form-error"></p>
           <div class="sm:col-span-2">
             <button type="submit" class="btn btn-orange w-full py-4 text-lg">Request My Free Estimate</button>
@@ -459,6 +464,7 @@
     <a href="#quote" data-scroll-to="#quote" class="w-1/2 py-4 text-center">Get Quote</a>
   </div>
 
-  <script src="assets/site.js?v=2" defer></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  <script src="assets/site.js?v=3" defer></script>
 </body>
 </html>

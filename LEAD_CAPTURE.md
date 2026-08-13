@@ -119,6 +119,12 @@ separate index.
 
 ## Spam handling
 
+- **Cloudflare Turnstile** — a real challenge widget on both forms. The site key
+  is public and sits in the HTML; the secret is `TURNSTILE_SECRET_KEY`, verified
+  server-side against Cloudflare's `siteverify` endpoint before a lead is
+  accepted. A missing or rejected token returns a 400 and the visitor is asked to
+  try again. See "Turnstile behaviour" below — it does not fail closed on a
+  Cloudflare outage.
 - **Honeypot** — a `company_website` field positioned off-canvas and hidden from
   assistive tech. Anything that fills it gets a `200 OK` and is silently dropped,
   so the bot never learns it was caught.
@@ -132,8 +138,47 @@ separate index.
 - **Escaping** — every value is HTML-escaped into the email, and the subject is
   collapsed to one line so a pasted newline cannot split the header.
 
-If spam ever gets through at volume, add [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/)
-— a free invisible check, verified with one more `fetch` in the handler.
+### Turnstile behaviour
+
+`signals.turnstile` is written into every lead record, so you can always tell how
+a submission was treated:
+
+| Status | Meaning | Outcome |
+| --- | --- | --- |
+| `passed` | Cloudflare confirmed the visitor | accepted |
+| `failed` | token rejected — the bot case | **400, rejected** |
+| `missing` | no token in the payload at all | **400, rejected** |
+| `disabled` | `TURNSTILE_SECRET_KEY` is not set | accepted, unchecked |
+| `provider-unreachable` | Cloudflare timed out (5s) or the connection died | accepted, unchecked |
+| `provider-error` | Cloudflare answered with a 5xx or an unreadable body | accepted, unchecked |
+
+The three "accepted, unchecked" states are **deliberate fail-open**. If Cloudflare
+has an outage, failing closed would silently block every real estimate request on
+the site — far more costly than the handful of bots the honeypot and fill-timer
+already catch. Either way it is recorded, so if you ever see a spam wave you can
+check whether it arrived during a `provider-*` window.
+
+Two ordering details in the handler that matter:
+
+- The honeypot runs **before** Turnstile, so an obvious bot never costs a
+  `siteverify` call.
+- Field validation runs **before** Turnstile too. A token is single-use, so
+  verifying it before catching a missing phone number would force the visitor to
+  solve a second challenge just to fix a typo.
+
+On the client, a failed submit calls `turnstile.reset()` — without it the spent
+token would make every retry fail.
+
+### Setup
+
+1. Cloudflare dashboard → **Turnstile** → your widget.
+2. Add `m310landworks.com` (and `www.`) to the widget's allowed hostnames, or the
+   widget will refuse to render on the live site.
+3. Copy the **Secret key** into `TURNSTILE_SECRET_KEY` in Vercel, Production and
+   Preview, then redeploy.
+
+The **site key** is already in the HTML on both form pages. That is correct and
+safe — it is public by design. Only the secret is confidential.
 
 ## Local development
 

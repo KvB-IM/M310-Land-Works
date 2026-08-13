@@ -88,6 +88,11 @@
           } else {
             alert('Sorry, there was a problem sending your request. Please try again or call us directly.');
           }
+          // A Turnstile token is single-use and the failed attempt just spent it.
+          // Without this reset a retry would always fail the check.
+          if (window.turnstile) {
+            try { window.turnstile.reset(form.querySelector('.cf-turnstile')); } catch (e) {}
+          }
         })
         .finally(function () {
           sending = false;
