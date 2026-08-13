@@ -1,3 +1,7 @@
 qa_shots/
 .git/
 BUILD_SUMMARY.md
+
+# CRM email templates. Not part of the site — without this they would be served
+# as public pages (e.g. /crm/zoho-lead-confirmation.html) and could get indexed.
+crm/

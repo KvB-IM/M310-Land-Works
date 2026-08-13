@@ -1,0 +1,107 @@
+<!-- ===========================================================================
+     M310 Land Works — Lead confirmation email (Zoho CRM template)
+
+     Customer-facing. Fires on Lead creation where Lead Source is a Meta/
+     Facebook lead ad. Confirms what they submitted and sets the callback
+     expectation.
+
+     PASTE THIS INTO: Zoho CRM → Setup → Templates → Email Templates → New
+     Template → module "Leads" → switch the editor to source/HTML view and
+     paste the whole thing.
+
+     MERGE FIELDS use ${Leads.Field Name}. Confirm every one against your own
+     field labels before going live — a label that does not exist renders as
+     empty text, not an error, so a typo fails silently. See README.md.
+
+     NOTE ON BLANKS: Zoho email templates have no conditional logic. An empty
+     field leaves an empty table cell rather than hiding the row. Only keep
+     rows below for questions your Meta form marks REQUIRED; delete the rest,
+     or use the Deluge alternative described in README.md.
+     ======================================================================= -->
+
+<div style="margin:0;padding:0;background:#EFEBE6">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EFEBE6;padding:24px 12px">
+  <tr><td align="center">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #E4DED7">
+
+      <!-- ---------------------------------------------------------- header -->
+      <tr><td style="background:#141414;padding:22px 24px">
+        <div style="font:700 25px/1.15 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#ffffff;letter-spacing:-.01em">M310 Land Works<span style="color:#F26B1F">.</span></div>
+        <div style="height:3px;background:#F26B1F;margin-top:12px;width:46px"></div>
+      </td></tr>
+
+      <!-- ----------------------------------------------------------- intro -->
+      <tr><td style="padding:28px 24px 4px">
+        <div style="font:700 23px/1.3 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414">Thanks, ${Leads.First Name} — we've got your request.</div>
+        <p style="font:16px/1.65 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#232323;margin:16px 0 0">Someone from our crew will call you shortly to schedule your <strong>free on-site estimate</strong>. No obligation, no pressure, and no pricing guesswork.</p>
+        <p style="font:16px/1.65 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#232323;margin:14px 0 0">We answer <strong>7 days a week</strong>, with 24/7 storm response.</p>
+      </td></tr>
+
+      <!-- ------------------------------------------------------ call to act -->
+      <tr><td style="padding:22px 24px 8px">
+        <a href="tel:+18036341616" style="display:inline-block;background:#F26B1F;color:#ffffff;font:700 15px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;text-transform:uppercase;letter-spacing:.05em;text-decoration:none;padding:15px 26px;border-radius:6px">Call (803) 634-1616</a>
+        <div style="font:13px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;margin-top:10px">Need us sooner than our callback? Just ring us.</div>
+      </td></tr>
+
+      <!-- -------------------------------------------------- what they sent -->
+      <tr><td style="padding:20px 24px 26px">
+        <div style="font:600 11px/1 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">What you sent us</div>
+
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E4DED7;border-radius:8px;overflow:hidden">
+
+          <tr>
+            <td style="padding:11px 16px;background:#F7F4F0;border-bottom:1px solid #E4DED7;font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;vertical-align:top">Name</td>
+            <td style="padding:11px 16px;background:#ffffff;border-bottom:1px solid #E4DED7;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414;vertical-align:top">${Leads.First Name} ${Leads.Last Name}</td>
+          </tr>
+
+          <tr>
+            <td style="padding:11px 16px;background:#FBF9F7;border-bottom:1px solid #E4DED7;font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;vertical-align:top">Phone</td>
+            <td style="padding:11px 16px;background:#ffffff;border-bottom:1px solid #E4DED7;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414;vertical-align:top">${Leads.Phone}</td>
+          </tr>
+
+          <tr>
+            <td style="padding:11px 16px;background:#F7F4F0;border-bottom:1px solid #E4DED7;font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;vertical-align:top">Email</td>
+            <td style="padding:11px 16px;background:#ffffff;border-bottom:1px solid #E4DED7;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414;vertical-align:top">${Leads.Email}</td>
+          </tr>
+
+          <!-- OPTIONAL ROWS — delete any question your Meta form does not ask,
+               or does not mark required. An unanswered field renders blank. -->
+
+          <tr>
+            <td style="padding:11px 16px;background:#FBF9F7;border-bottom:1px solid #E4DED7;font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;vertical-align:top">Property location</td>
+            <td style="padding:11px 16px;background:#ffffff;border-bottom:1px solid #E4DED7;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414;vertical-align:top">${Leads.City} ${Leads.State}</td>
+          </tr>
+
+          <tr>
+            <td style="padding:11px 16px;background:#F7F4F0;border-bottom:1px solid #E4DED7;font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;vertical-align:top">What needs clearing</td>
+            <td style="padding:11px 16px;background:#ffffff;border-bottom:1px solid #E4DED7;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414;vertical-align:top">${Leads.Service Needed}</td>
+          </tr>
+
+          <tr>
+            <td style="padding:11px 16px;background:#FBF9F7;border-bottom:1px solid #E4DED7;font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;vertical-align:top">Property size</td>
+            <td style="padding:11px 16px;background:#ffffff;border-bottom:1px solid #E4DED7;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414;vertical-align:top">${Leads.Property Size}</td>
+          </tr>
+
+          <tr>
+            <td style="padding:11px 16px;background:#F7F4F0;font:600 11px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;vertical-align:top">Details</td>
+            <td style="padding:11px 16px;background:#ffffff;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#141414;vertical-align:top">${Leads.Description}</td>
+          </tr>
+
+        </table>
+
+        <div style="font:13px/1.6 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#6E6A64;margin-top:14px">Something wrong above? Reply to this email or call us and we'll fix it before we head out.</div>
+      </td></tr>
+
+      <!-- ---------------------------------------------------------- footer -->
+      <tr><td style="background:#141414;padding:18px 24px;font:12px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:rgba(255,255,255,.55)">
+        <strong style="color:rgba(255,255,255,.85)">M310 Land Works</strong><br>
+        332 Edgefield Rd, North Augusta, SC 29841<br>
+        <a href="tel:+18036341616" style="color:#F26B1F;text-decoration:none">(803) 634-1616</a> ·
+        <a href="mailto:quote@m310landworks.com" style="color:rgba(255,255,255,.7);text-decoration:none">quote@m310landworks.com</a><br>
+        <span style="color:rgba(255,255,255,.4)">Land clearing &amp; site work across the CSRA. You're receiving this because you requested an estimate.</span>
+      </td></tr>
+
+    </table>
+  </td></tr>
+</table>
+</div>
