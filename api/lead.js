@@ -31,8 +31,8 @@ const ALLOWED_HOSTS = (process.env.ALLOWED_ORIGIN_HOSTS || '')
   .map((h) => h.trim().toLowerCase())
   .filter(Boolean);
 
-const PHONE_DISPLAY = '(803) 634-1616';
-const PHONE_HREF = 'tel:+18036341616';
+const PHONE_DISPLAY = '(803) 989-0031';
+const PHONE_HREF = 'tel:+18039890031';
 
 const MAX_BODY_BYTES = 32 * 1024;
 const MAX_FIELD_CHARS = 5000;
