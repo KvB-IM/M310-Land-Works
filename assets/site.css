@@ -68,6 +68,28 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 /* clay texture band */
 .clay-band{background:var(--m310-clay)}
 
+/* FAQ accordion. <details>/<summary> so the answers are in the DOM and readable
+   by crawlers and assistive tech whether or not they are visually expanded —
+   a JS-driven accordion that injects answers on click would hide them from both. */
+.faq-item{border:1px solid rgba(0,0,0,.1);border-radius:.5rem;background:#fff;overflow:hidden}
+.faq-item[open]{border-color:var(--m310-orange-bright);box-shadow:0 6px 20px -12px rgba(0,0,0,.35)}
+.faq-q{cursor:pointer;list-style:none;display:flex;align-items:flex-start;gap:.75rem;
+  padding:1rem 1.15rem;font-family:'Oswald',sans-serif;font-weight:600;font-size:1.03rem;
+  line-height:1.4;color:var(--m310-black);transition:background .15s ease}
+.faq-q:hover{background:#FAF8F6}
+.faq-q::-webkit-details-marker{display:none}
+/* Chevron drawn in CSS so the markup stays free of decorative elements */
+.faq-q::before{content:"";flex:0 0 auto;width:.5rem;height:.5rem;margin-top:.42rem;
+  border-right:2.5px solid var(--m310-orange-bright);border-bottom:2.5px solid var(--m310-orange-bright);
+  transform:rotate(-45deg);transition:transform .2s ease}
+.faq-item[open] .faq-q::before{transform:rotate(45deg)}
+.faq-a{padding:0 1.15rem 1.15rem 2.9rem;color:rgba(35,35,35,.85);line-height:1.7}
+.faq-a p{margin:0}
+@media(max-width:480px){
+  .faq-q{font-size:.97rem;padding:.85rem 1rem}
+  .faq-a{padding:0 1rem 1rem 2.6rem}
+}
+
 /* Honeypot — off-canvas rather than display:none, which some bots detect */
 .hp-field{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
 

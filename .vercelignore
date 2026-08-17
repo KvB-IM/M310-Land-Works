@@ -5,3 +5,7 @@ BUILD_SUMMARY.md
 # CRM email templates. Not part of the site — without this they would be served
 # as public pages (e.g. /crm/zoho-lead-confirmation.html) and could get indexed.
 crm/
+
+# Build-time generators for the structured data. Source, not output — the HTML
+# they produce is committed and deployed.
+tools/

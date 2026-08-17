@@ -1,4 +1,41 @@
+# M310 Land Works — https://www.m310landworks.com
+#
+# Everything here is public marketing copy and we want it read, quoted and cited,
+# by search crawlers and AI assistants alike.
+#
+# The wildcard group already permits every crawler. The named group exists so the
+# intent is explicit and nobody later assumes AI agents were meant to be blocked.
+# Google-Extended is the one that genuinely matters: it is a separate opt-in
+# governing whether Google may use this content for Gemini and AI Overviews, and
+# a wildcard Allow does not cover it.
+#
+# Note on structure: a crawler obeys only the most specific group that matches its
+# name and does NOT inherit the wildcard's rules, so the /api/ exclusion is
+# repeated in both groups rather than stated once. Multiple User-agent lines share
+# the rule block beneath them.
+
 User-agent: *
 Allow: /
+Disallow: /api/
 
-Sitemap: https://m310landworks.com/sitemap.xml
+# Search and AI assistant crawlers, named explicitly.
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: Google-Extended
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: bingbot
+User-agent: Applebot
+User-agent: Applebot-Extended
+User-agent: meta-externalagent
+User-agent: CCBot
+User-agent: DuckAssistBot
+User-agent: Amazonbot
+Allow: /
+Disallow: /api/
+
+Sitemap: https://www.m310landworks.com/sitemap.xml
